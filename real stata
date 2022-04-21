@@ -1,0 +1,84 @@
+
+import delimited "C:\Users\slgilmour\Downloads\population-density.csv", clear 
+drop if year<=1989 | year>=2021
+tempfile A
+save `A'
+import delimited "C:\Users\slgilmour\Downloads\share-co2-embedded-in-trade.csv", clear
+merge m:m entity year using `A'
+keep if _merge==3 | _merge==1
+drop _merge
+tempfile B
+save `B'
+import delimited "C:\Users\slgilmour\Downloads\gdp-per-capita-worldbank.csv", clear 
+merge m:m entity year using `B'
+keep if _merge==2 | _merge==3
+drop _merge
+tempfile C
+save `C'
+
+import delimited "C:\Users\slgilmour\Downloads\national-gdp.csv", clear
+merge m:m entity year using `C'
+keep if _merge==2 | _merge==3
+drop _merge
+
+tempfile D
+save `D'
+
+import delimited "C:\Users\slgilmour\Downloads\climate-risk-index-1.csv", clear
+rename country entity
+tempfile E
+save `E'
+
+use `D'
+merge m:m entity using `E'
+keep if _merge==2 | _merge==3
+
+drop the_geom cartodb_id the_geom_webmercator fatalities_per_100k_rank fatalities_per_100k_total fatalities_rank fatalities_total losses_per_gdp__rank losses_per_gdp__total losses_usdm_ppp_rank losses_usdm_ppp_total rw_country_code rw_country_name _merge
+
+
+gen kyotoratified=0
+
+replace kyotoratified=1 if entity== "Albania"|entity== "Algeria"|entity== "Antigua and Barbuda"|entity== "Argentina"|entity== "Armenia"|entity== "Azerbaijan"|entity== "Bahamas"|entity=="Bahrain"|entity== "Bangladesh"|entity== "Barbados"|entity== "Belarus"|entity== "Belgium"|entity== "Belize"|entity== "Benin"|entity== "Bhutan"|entity== "Austria"|entity== "Bolivia"|entity== "Botswana"|entity== "Brazil"|entity== "Bulgaria"|entity== "Burkina Faso"|entity== "Burundi"|entity== "Cambodia"|entity== "Cameroon"|entity== "Canada"|entity== "Cape Verde"|entity== "Chile"|entity== "China"|entity== "Colombia"|entity== "Cook Islands"|entity== "Costa Rica"|entity== "Cuba"|entity== "Czech Republic"|entity== "South Korea"|entity== "Denmark"|entity== "Djibouti"|entity== "Dominica"|entity=="Dominican Republic"|entity== "Ecuador"|entity== "Egypt"|entity== "El Salvador"|entity== "Equatorial Guinea"|entity== "Eritrea"|entity== "Estonia"|entity=="Ethiopia"|entity== "European Community"|entity== "Fiji"|entity== "Finland"|entity== "France"|entity== "Gambia"|entity== "Georgia"|entity== "Germany"|entity== "Ghana"|entity== "Greece"|entity== "Grenada"|entity== "Guatemala"|entity=="Guinea"|entity== "Guyana"|entity== "Haiti"|entity== "Honduras"|entity== "Hungary"|entity== "Iceland"|entity== "India"|entity== "Indonesia"|entity== "Iran"|entity== "Israel"|entity== "Italy"|entity== "Jamaica"|entity== "Japan"|entity== "Jordan"|entity== "Kenya"|entity== "Kiribati"|entity== "Kuwait"|entity== "Kyrgyzstan"|entity== "Lao"|entity== "Latvia"|entity== "Lesotho"|entity== "Liberia"|entity== "Lichtenstein"|entity== "Lithuania"|entity== "Luxembourg"|entity== "Madagascar"|entity== "Malawi"|entity== "Malaysia"|entity== "Maldives"|entity== "Maji"|entity== "Malta"|entity== "Marshall Islands"|entity== "Mauritania"|entity== "Mauritius"|entity== "Mexico"|entity== "Micronesia"|entity== "Monaco"|entity== "Morocco"|entity== "Mongolia"|entity== "Mozambique"|entity== "Myanmar"|entity== "Namibia"|entity== "Nauru"|entity== "Nepal"|entity== "Netherlands"|entity== "New Zealand"|entity== "Nicaragua"|entity== "Niger"|entity== "Nigeria"|entity== "Niue"|entity== "Norway"|entity== "Oman"|entity== "Pakistan"|entity== "Palau"|entity== "Panama"|entity== "Papua New Guinea"|entity== "Paraguay"|entity== "Peru"|entity== "Philippines"|entity== "Poland"|entity== "Portugal"|entity== "North Korea"|entity== "Qatar"|entity== "Moldova"|entity== "Romania"|entity== "Russia"|entity== "Rwanda"|entity== "Saint Lucia"|entity== "Saint Vincent and the Grenadines"|entity== "Samoa"|entity== "Saudi Arabia"|entity== "Senegal"|entity== "Seychelles"|entity== "Singapore"|entity== "Slovakia"|entity== "Slovenia"|entity== "Solomon Islands"|entity== "South Africa"|entity== "Spain"|entity== "Sri Lanka"|entity== "Sudan"|entity== "Suriname"|entity== "Swaziland"|entity== "Sweden"|entity== "Switzerland"|entity== "Syria"|entity== "Thailand"|entity== "Macedonia"|entity== "Togo"|entity== "Trinidad and Tobago"|entity=="Tunisia"|entity== "Turkmenistan"|entity== "Tuvalu"|entity== "Uganda"|entity== "Ukraine"|entity== "United Arab Emirates"|entity== "Tanzania"|entity== "Uruguay"|entity== "Uzbekistan"|entity== "Vanuatu"|entity== "Venezuala"|entity== "Vietnam"|entity== "Yemen"|entity== "Zambia"
+
+
+drop if entity== "Africa" | entity=="Asia" | entity=="North America (excl. USA)"
+drop if entity=="Asia (excl. China & India)"
+drop if entity=="Europe (excl. EU-27))"
+drop if entity=="Europe (excl. EU-27)"
+drop if entity=="Europe (excl. EU-28)"
+drop if entity=="European Union (27)"
+drop if entity=="European Union (28)"
+drop if entity=="Europe"
+drop if entity=="Low-income countries"
+drop if entity=="Lower-middle-income countries"
+drop if entity=="Upper-middle-income countries"
+drop if entity=="High-income countries"
+drop if entity=="South America"
+drop if entity=="world"
+drop if entity=="World"
+encode entity, gen (entitynum)
+xtset entitynum year
+
+gen post2005=0
+replace post2005=1 if year>2005
+gen post2005enacted=kyotoratified*post2005
+reg shareofannualco2emissionsembedde kyotoratified post2005 post2005enacted population_density gdppercapitapppconstant2017inter
+
+
+
+
+tab gdppercapitapppconstant2017inter shareofannualco2emissionsembedde
+mean population_density, stdize(entity) stdweight(population_density)
+tab gdppercapitapppconstant2017inter
+tabstat kyotoratified, statistics( mean )
+tabstat shareofannualco2emissionsembedde kyotoratified, statistics( mean )
+tabstat shareofannualco2emissionsembedde kyotoratified gdppercapitapppconstant2017inter population_density , statistics( mean )
+tabstat shareofannualco2emissionsembedde kyotoratified gdppercapitapppconstant2017inter population_density , statistics( mean ) if year<=2004
+tabstat shareofannualco2emissionsembedde kyotoratified if year<=2005, statistics( mean )
+tabstat shareofannualco2emissionsembedde kyotoratified gdppercapitapppconstant2017inter population_density if year<=2005, statistics( mean )
+tabstat shareofannualco2emissionsembedde gdppercapitapppconstant2017inter population_density if year<=2005 & kyotoratified==0 , statistics( mean )
+tabstat shareofannualco2emissionsembedde gdppercapitapppconstant2017inter population_density if year>2005 & kyotoratified==1 , statistics( mean )
+ssc install tabout
+tabout
+tabstat shareofannualco2emissionsembedde kyotoratified if year<=2005, statistics( mean sd )
+tabstat shareofannualco2emissionsembedde gdppercapitapppconstant2017inter population_density if year>2005 & kyotoratified==1 , statistics( mean sd )
