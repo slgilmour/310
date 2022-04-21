@@ -1,0 +1,77 @@
+import delimited "C:\Users\slgilmour\Downloads\share-co2-embedded-in-trade.csv"
+import delimited "C:\Users\slgilmour\Downloads\population-density.csv", clear 
+drop if year<=1989 | year>=2021
+do "C:\Users\SLGILM~1\AppData\Local\Temp\20\STD4e50_000000.tmp"
+do "C:\Users\SLGILM~1\AppData\Local\Temp\20\STD4e50_000000.tmp"
+help tempfile
+do "C:\Users\SLGILM~1\AppData\Local\Temp\20\STD4e50_000000.tmp"
+import delimited "C:\Users\slgilmour\Downloads\gdp-per-capita-worldbank.csv", clear 
+do "C:\Users\SLGILM~1\AppData\Local\Temp\20\STD4e50_000000.tmp"
+do "C:\Users\SLGILM~1\AppData\Local\Temp\20\STD4e50_000000.tmp"
+do "C:\Users\SLGILM~1\AppData\Local\Temp\20\STD4e50_000000.tmp"
+do "C:\Users\SLGILM~1\AppData\Local\Temp\20\STD4e50_000000.tmp"
+do "C:\Users\SLGILM~1\AppData\Local\Temp\20\STD4e50_000000.tmp"
+do "C:\Users\SLGILM~1\AppData\Local\Temp\20\STD4e50_000000.tmp"
+do "C:\Users\SLGILM~1\AppData\Local\Temp\20\STD4e50_000000.tmp"
+do "C:\Users\SLGILM~1\AppData\Local\Temp\20\STD4e50_000000.tmp"
+. replace kyotoratified=1 if entity== "Albania"|entity== "Algeria"|entity== "Ant
+> igua and Barbuda"|entity== "Argentina"|entity== "Armenia"|entity== "Azerbaijan
+> "|entity== "Bahamas"|entity== "Bahrain"|entity== "Bangladesh"|entity== "Barbad
+> os"|entity== "Belarus"|entity== "Belgium"|entity== "Belize"|entity== "Benin"|e
+> ntity== "Bhutan"|entity== "Austria"|entity== "Bolivia"|entity== "Botswana"|ent
+> ity== "Brazil"|entity== "Bulgaria"|entity== "Burkina Faso"|entity== "Burundi"|
+> entity== "Cambodia"|entity== "Cameroon"|entity== "Canada"|entity== "Cape Verde
+> "|entity== "Chile"|entity== "China"|entity== "Colombia"|entity== "Cook Islands
+> "|entity== "Costa Rica"|entity== "Cuba"|entity== "Czech Republic"|entity== "So
+> uth Korea"|entity== "Denmark"|entity== "Djibouti"|entity== "Dominica"|entity==
+>  "Dominican Republic"|entity== "Ecuador"|entity== "Egypt"|entity== "El Salvado
+> r"|entity== "Equatorial Guinea"|entity== "Eritrea"|entity== "Estonia"|entity==
+>  "Ethiopia"|entity== "European Community"|entity== "Fiji"|entity== "Finland"|e
+> ntity== "France"|entity== "Gambia"|entity== "Georgia"|entity== "Germany"|entit
+> y== "Ghana"|entity== "Greece"|entity== "Grenada"|entity== "Guatemala"|entity==
+>  "Guinea"|entity== "Guyana"|entity== "Haiti"|entity== "Honduras"|entity== "Hun
+> gary"|entity== "Iceland"|entity== "India"|entity== "Indonesia"|entity== "Iran"
+> |entity== "Israel"|entity== "Italy"|entity== "Jamaica"|entity== "Japan"|entity
+> == "Jordan"|entity== "Kenya"|entity== "Kiribati"|entity== "Kuwait"|entity== "K
+> yrgyzstan"|entity== "Lao"|entity== "Latvia"|entity== "Lesotho"|entity== "Liber
+> ia"|entity== "Lichtenstein"|entity== "Lithuania"|entity== "Luxembourg"|entity=
+> = "Madagascar"|entity== "Malawi"|entity== "Malaysia"|entity== "Maldives"|entit
+> y== "Maji"|entity== "Malta"|entity== "Marshall Islands"|entity== "Mauritania"|
+> entity== "Mauritius"|entity== "Mexico"|entity== "Micronesia"|entity== "Monaco"
+> |entity== "Morocco"|entity== "Mongolia"|entity== "Mozambique"|entity== "Myanma
+> r"|entity== "Namibia"|entity== "Nauru"|entity== "Nepal"|entity== "Netherlands"
+> |entity== "New Zealand"|entity== "Nicaragua"|entity== "Niger"|entity== "Nigeri
+> a"|entity== "Niue"|entity== "Norway"|entity== "Oman"|entity== "Pakistan"|entit
+> y== "Palau"|entity== "Panama"|entity== "Papua New Guinea"|entity== "Paraguay"|
+> entity== "Peru"|entity== "Philippines"|entity== "Poland"|entity== "Portugal"|e
+> ntity== "North Korea"|entity== "Qatar"|entity== "Moldova"|entity== "Romania"|e
+> ntity== "Russia"|entity== "Rwanda"|entity== "Saint Lucia"|entity== "Saint Vinc
+> ent and the Grenadines"|entity== "Samoa"|entity== "Saudi Arabia"|entity== "Sen
+> egal"|entity== "Seychelles"|entity== "Singapore"|entity== "Slovakia"|entity== 
+> "Slovenia"|entity== "Solomon Islands"|entity== "South Africa"|entity== "Spain"
+> |entity== "Sri Lanka"|entity== "Sudan"|entity== "Suriname"|entity== "Swaziland
+> "|entity== "Sweden"|entity== "Switzerland"|entity== "Syria"|entity== "Thailand
+> "|entity== "Macedonia"|entity== "Togo"|entity== "Trinidad and Tobago"|entity==
+>  "Tunisia"|entity== "Turkmenistan"|entity== "Tuvalu"|entity== "Uganda"|entity=
+> = "Ukraine"|entity== "United Arab Emirates"|entity== "Tanzania"|entity== "Urug
+> uay"|entity== "Uzbekistan"|entity== "Vanuatu"|entity== "Venezuala"|entity== "V
+> ietnam"|entity== "Yemen"|entity== "Zambia"
+(3,044 real changes made)
+
+. 
+
+tab gdppercapitapppconstant2017inter shareofannualco2emissionsembedde
+mean population_density, stdize(entity) stdweight(population_density)
+tab gdppercapitapppconstant2017inter
+tabstat kyotoratified, statistics( mean )
+tabstat shareofannualco2emissionsembedde kyotoratified, statistics( mean )
+tabstat shareofannualco2emissionsembedde kyotoratified gdppercapitapppconstant2017inter population_density , statistics( mean )
+tabstat shareofannualco2emissionsembedde kyotoratified gdppercapitapppconstant2017inter population_density , statistics( mean ) if year<=2004
+tabstat shareofannualco2emissionsembedde kyotoratified if year<=2005, statistics( mean )
+tabstat shareofannualco2emissionsembedde kyotoratified gdppercapitapppconstant2017inter population_density if year<=2005, statistics( mean )
+tabstat shareofannualco2emissionsembedde gdppercapitapppconstant2017inter population_density if year<=2005 & kyotoratified==0 , statistics( mean )
+tabstat shareofannualco2emissionsembedde gdppercapitapppconstant2017inter population_density if year>2005 & kyotoratified==1 , statistics( mean )
+ssc install tabout
+tabout
+tabstat shareofannualco2emissionsembedde kyotoratified if year<=2005, statistics( mean sd )
+tabstat shareofannualco2emissionsembedde gdppercapitapppconstant2017inter population_density if year>2005 & kyotoratified==1 , statistics( mean sd )
