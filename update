@@ -1,0 +1,75 @@
+//https://ourworldindata.org/grapher/consumption-vs-production-co2-per-capita
+//https://ourworldindata.org/grapher/national-gdp
+//https://ourworldindata.org/grapher/population-density
+//https://ourworldindata.org/grapher/natural-resource-rents
+//https://data.world/gpsdd/e1dcef1d-b9ca-4c22-8b78-f7b6703d2274
+
+import delimited "C:\Users\slgilmour\Downloads\population-density.csv", clear 
+drop if year<=1989 | year>=2021
+tempfile A
+save `A'
+import delimited "C:\Users\slgilmour\Downloads\consumption-vs-production-co2-per-capita.csv", clear
+merge m:m entity year using `A'
+drop _merge
+tempfile B
+save `B'
+
+
+import delimited "C:\Users\slgilmour\Downloads\national-gdp.csv", clear
+merge m:m entity year using `B'
+drop _merge
+tempfile D
+save `D'
+
+import delimited "C:\Users\slgilmour\Downloads\climate-risk-index-1.csv", clear
+rename country entity
+tempfile E
+save `E'
+
+
+use `D'
+merge m:m entity using `E'
+
+
+drop the_geom cartodb_id the_geom_webmercator fatalities_per_100k_rank fatalities_per_100k_total fatalities_rank fatalities_total losses_per_gdp__rank losses_per_gdp__total losses_usdm_ppp_rank losses_usdm_ppp_total rw_country_code rw_country_name 
+drop _merge
+tempfile F
+save `F'
+
+import delimited "C:\Users\slgilmour\Downloads\natural-resource-rents.csv", clear
+tempfile G
+save `G'
+
+clear
+use `F'
+merge m:m entity year using `G'
+drop _merge
+drop if year<=1989 | year>=2021
+
+gen kyotoratified=0
+
+
+replace kyotoratified=1 if entity== "Australia"|entity== "Austria"|entity== "Belgium"|entity== "Bulgaria"|entity== "Croatia"|entity== "Czech Republic"|entity== "Denmark"|entity== "Estonia"|entity== "Finland"|entity== "France"|entity== "Germany"|entity== "Greece"|entity== "Hungary"|entity== "Iceland"|entity== "Ireland"|entity== "Italy"|entity== "Japan"|entity== "Latia"|entity== "Liechtenstein"|entity== "Lithuania"|entity== "Luxembourg"|entity== "Monaco"|entity== "Netherlands"|entity== "New Zealand"|entity== "Norway"|entity== "Poland"|entity== "Portugal"|entity== "Romania"|entity== "Russia"|entity== "Slovakia"|entity== "Slovenia"|entity== "Spain"|entity== "Sweden"|entity== "Switzerland"|entity== "Ukraine"|entity== "United Kingdom"
+
+drop if code==""
+
+encode entity, gen (entitynum)
+xtset entitynum year
+
+gen post2005=0
+replace post2005=1 if year>2005
+gen post2005enacted=kyotoratified*post2005
+gen lngdp=ln(totaloutputsiderealgdpatchainedp)
+gen netimports= annualconsumptionbasedco2emissio- annualco2emissionspercapita
+
+ssc install outreg2
+xtreg netimports post2005enacted post2005 kyotoratified 
+outreg2 using "reg1.doc"
+xtreg netimports post2005enacted post2005 kyotoratified lngdp 
+outreg2 using "reg2.doc"
+xtreg netimports post2005enacted post2005 kyotoratified lngdp totalnaturalresourcesrentsofgdp 
+outreg2 using "reg3.doc"
+xtreg netimports post2005enacted post2005 kyotoratified lngdp totalnaturalresourcesrentsofgdp population_density
+outreg2 using "reg4.doc"
+xtreg netimports post2005enacted post2005 kyotoratified lngdp totalnaturalresourcesrentsofgdp population_density cri_score
+outreg2 using "reg5.doc"
